@@ -86,7 +86,7 @@ export default function Home() {
   const [motion, setMotion] = useState(true);
   const [light, setLight] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
-  const canvas = useRef<HTMLCanvasElement>(null);
+
   useEffect(() => {
     try {
       const saved = localStorage.getItem("sunny-theme");
@@ -101,7 +101,7 @@ export default function Home() {
   }, []);
   useEffect(() => {
     document.documentElement.style.colorScheme = light ? "light" : "dark";
-    document.body.style.backgroundColor = light ? "#eef1fa" : "#080a16";
+    document.body.style.backgroundColor = light ? "#eeece5" : "#0b0b0d";
   }, [light]);
   function toggleTheme() {
     const next = !light;
@@ -120,53 +120,15 @@ export default function Home() {
     else dialog.current?.close();
   }, [active]);
   useEffect(() => {
-    const c = canvas.current;
-    if (!c) return;
-    const ctx = c.getContext("2d");
-    if (!ctx) return;
-    let frame = 0;
-    let id = 0;
-    const render = () => {
-      const rect = c.getBoundingClientRect();
-      const d = window.devicePixelRatio || 1;
-      if (c.width !== Math.floor(rect.width * d)) {
-        c.width = Math.floor(rect.width * d);
-        c.height = Math.floor(rect.height * d);
-      }
-      ctx.clearRect(0, 0, c.width, c.height);
-      const w = c.width,
-        h = c.height,
-        t = motion ? frame * 0.002 : 0;
-      const points = Array.from({ length: 45 }, (_, i) => {
-        const a = i * 2.39996 + t;
-        const r = Math.sqrt(i / 45) * w * 0.48;
-        return {
-          x: w / 2 + Math.cos(a) * r,
-          y: h / 2 + Math.sin(a) * r * 0.75,
-        };
+    const elements = document.querySelectorAll(".section, .project, .proof, .about-section");
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) { entry.target.classList.add("in-view"); observer.unobserve(entry.target); }
       });
-      ctx.strokeStyle = "rgba(161,169,255,.16)";
-      ctx.lineWidth = d * 0.7;
-      points.forEach((p, i) => {
-        points.slice(i + 1).forEach((q) => {
-          if (Math.hypot(p.x - q.x, p.y - q.y) < w * 0.19) {
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(q.x, q.y);
-            ctx.stroke();
-          }
-        });
-        ctx.fillStyle = "rgba(163,219,255,.6)";
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 1.5 * d, 0, 7);
-        ctx.fill();
-      });
-      frame++;
-      if (motion) id = requestAnimationFrame(render);
-    };
-    render();
-    return () => cancelAnimationFrame(id);
-  }, [motion]);
+    }, { threshold: 0.08 });
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [filter]);
   async function copyEmail() {
     try {
       await navigator.clipboard.writeText(EMAIL);
@@ -178,7 +140,7 @@ export default function Home() {
   }
   return (
     <div
-      className={`portfolio-spatial ${light ? "light" : ""} ${motion ? "" : "still"}`}
+      className={`portfolio-spatial cinematic ${light ? "light" : ""} ${motion ? "" : "still"}`}
     >
       <button
         className="theme-float"
@@ -232,157 +194,26 @@ export default function Home() {
         </nav>
       </header>
       <main id="main">
-        <section className="hero wrap">
-          <div className="hero-copy">
-            <div className="eyebrow">
-              <span className="status" /> OPEN TO SOFTWARE DEVELOPMENT ROLES
-            </div>
-            <div className="spatial-label">
-              ENGINEERING / IN A NEW DIMENSION
-            </div>
-            <h1>
-              Real systems.
-              <br />
-              <em>New dimensions.</em>
-            </h1>
-            <p className="intro">
-              Hi, I’m <strong>SUNNY SINGH.</strong> A software developer focused
-              on Java, Spring Boot and building the systems behind great
-              experiences.
-            </p>
-            <div className="actions">
-              <a className="button primary" href="#work">
-                Explore my work <span>↗</span>
-              </a>
-              <a className="button secondary" href={"mailto:" + EMAIL}>
-                Let’s connect <span>↗</span>
-              </a>
-            </div>
-            <div className="location">
-              <span>◎</span> Lucknow, India <i /> B.Tech CSE, 2025
-            </div>
-          </div>
-          <div
-            className="hero-visual spatial-scene"
-            onPointerMove={(e) => {
+        <section className="cinema-hero" aria-labelledby="hero-title">
+          <div className="spotlight" aria-hidden="true" />
+          <div className="hero-grid" aria-hidden="true" />
+          <div className="hero-topline wrap"><span><i className="status" /> AVAILABLE FOR SDE / BACKEND ROLES</span><span>LUCKNOW, INDIA · 2025 GRADUATE</span></div>
+          <div className="cinema-stage wrap">
+            <div className="hero-heading"><p className="eyebrow">JAVA / BACKEND / SOFTWARE ENGINEERING</p><h1 id="hero-title">SUNNY<br /><span>SINGH</span><sup>↗</sup></h1><p className="hero-role">Thoughtful code.<br />Purposeful experiences.</p></div>
+            <div className="sculpture" onPointerMove={(e) => {
               if (!motion || e.pointerType === "touch") return;
-              const r = e.currentTarget.getBoundingClientRect();
-              e.currentTarget.style.setProperty(
-                "--rx",
-                (0.5 - (e.clientY - r.top) / r.height) * 9 + "deg",
-              );
-              e.currentTarget.style.setProperty(
-                "--ry",
-                ((e.clientX - r.left) / r.width - 0.5) * 13 + "deg",
-              );
-            }}
-            onPointerLeave={(e) => {
-              e.currentTarget.style.setProperty("--rx", "0deg");
-              e.currentTarget.style.setProperty("--ry", "0deg");
-            }}
-          >
-            <div className="spatial-halo" aria-hidden="true" />
-            <div className="floor-grid" aria-hidden="true" />
-            <div className="spatial-stage">
-              <canvas ref={canvas} aria-hidden="true" />
-              <div className="glass-window">
-                <div className="window-top">
-                  <span className="window-dots">● ● ●</span>
-                  <span>THE DEVELOPER SPACE</span>
-                  <span>01 / SS</span>
-                </div>
-                <div
-                  className="window-crosshair crosshair-a"
-                  aria-hidden="true"
-                >
-                  +
-                </div>
-                <div
-                  className="window-crosshair crosshair-b"
-                  aria-hidden="true"
-                >
-                  +
-                </div>
-                <div className="photo-frame">
-                  <img
-                    src="/portrait.webp"
-                    alt="Sunny Singh in a dark blazer and white shirt"
-                    width="1000"
-                    height="1250"
-                    fetchPriority="high"
-                  />
-                  <div className="photo-shade" />
-                  <div className="photo-caption">
-                    <span>SUNNY SINGH</span>
-                    <small>Software Development Engineer</small>
-                  </div>
-                </div>
-                <div className="window-bottom">
-                  <span>
-                    <i /> AVAILABLE FOR OPPORTUNITIES
-                  </span>
-                  <span>LUCKNOW / INDIA</span>
-                </div>
-              </div>
-              <div className="spatial-card stack-panel">
-                <span className="panel-index">01 / CORE STACK</span>
-                <b>Java + Spring Boot</b>
-                <div className="signal-bars" aria-hidden="true">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                    <i
-                      key={n}
-                      style={{
-                        animationDelay: n * 0.12 + "s",
-                        height: 12 + (n % 4) * 7,
-                      }}
-                    />
-                  ))}
-                </div>
-                <small>Systems behind the experience.</small>
-              </div>
-              <a
-                className="spatial-card project-panel"
-                href="https://rescue-net-sunny-demo.vercel.app"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <span className="panel-index">02 / FEATURED BUILD</span>
-                <div className="holo-symbol" aria-hidden="true">
-                  ✚
-                </div>
-                <b>
-                  RESCUE.NET <span>↗</span>
-                </b>
-                <small>Explore the working demo</small>
-              </a>
-              <div className="spatial-card code-panel" aria-hidden="true">
-                <span className="panel-index">BUILD WITH INTENT</span>
-                <code>
-                  <span>public</span> class Developer {"{"}
-                  <br />
-                  &nbsp; curiosity = <span>true</span>;<br />
-                  &nbsp; build(ideas);
-                  <br />
-                  {"}"}
-                </code>
-              </div>
-              <div className="orbit-chip" aria-hidden="true">
-                ⌘
-              </div>
-            </div>
-            <div className="scene-toolbar">
-              <span>
-                SPATIAL VIEW <i />
-              </span>
-              <button onClick={() => setMotion(!motion)} aria-pressed={motion}>
-                {motion ? "Ⅱ Pause motion" : "▶ Enable motion"}
-              </button>
+              const r=e.currentTarget.getBoundingClientRect();
+              e.currentTarget.style.setProperty("--turn", `${((e.clientX-r.left)/r.width-.5)*16}deg`);
+            }} onPointerLeave={(e)=>e.currentTarget.style.setProperty("--turn","0deg")}>
+              <div className="orbit-sculpture" aria-hidden="true"><i /><i /><i /><span>SS</span></div>
+              <figure className="cinema-portrait"><img src="/portrait.webp" width="1000" height="1250" alt="Sunny Singh in a dark blazer and white shirt" fetchPriority="high" /><figcaption><span>THE DEVELOPER</span><b>01 / SS</b></figcaption></figure>
+              <span className="sculpture-note">ENGINEERING IN MOTION</span>
             </div>
           </div>
-          <div className="scroll-note">
-            SCROLL TO EXPLORE <span>↓</span>
-          </div>
+          <div className="hero-bottom wrap"><p>I build the systems behind the experience.<br /><span>Java, Spring Boot, REST APIs & a curiosity for how things work.</span></p><div className="actions"><a className="button primary" href="#work">Explore my work ↗</a><a className="button secondary" href="/Sunny-Singh-Resume.pdf" target="_blank" rel="noreferrer">Résumé ↓</a></div></div>
+          <div className="hero-foot wrap"><a href="#work">SCROLL TO EXPLORE ↓</a><button onClick={()=>setMotion(!motion)} aria-pressed={motion}>{motion ? "Ⅱ Pause motion" : "▶ Enable motion"}</button></div>
         </section>
+        <div className="kinetic-strip" aria-hidden="true"><div>{[0,1].map(n=><span key={n}>JAVA DEVELOPER <i>✳</i> BACKEND ENGINEER <i>✳</i> PROBLEM SOLVER <i>✳</i> </span>)}</div></div>
         <div className="proof wrap">
           <div>
             <strong>
@@ -411,7 +242,7 @@ export default function Home() {
           <div className="section-top">
             <div>
               <div className="eyebrow">01 / SELECTED WORK</div>
-              <h2>Ideas, engineered.</h2>
+              <h2>SELECTED<br /><em>WORK.</em><sup>(02)</sup></h2>
             </div>
             <p>
               Real projects. Clear responsibilities.
@@ -435,7 +266,11 @@ export default function Home() {
             {projects
               .filter((p) => filter === "All" || p.category === filter)
               .map((p) => (
-                <article className={"project " + p.id} key={p.id}>
+                <article className={"project " + p.id} key={p.id} onPointerMove={(e) => {
+                  if (!motion || e.pointerType === "touch") return;
+                  const r=e.currentTarget.getBoundingClientRect();
+                  e.currentTarget.style.setProperty("--tilt", `${((e.clientX-r.left)/r.width-.5)*5}deg`);
+                }} onPointerLeave={(e)=>e.currentTarget.style.setProperty("--tilt","0deg")}>
                   <div className="project-art" aria-hidden="true">
                     {p.id === "rescue" ? (
                       <>
@@ -691,9 +526,9 @@ export default function Home() {
               <span className="status" /> LET’S BUILD SOMETHING THAT MATTERS
             </div>
             <h2>
-              Your next developer.
+              LET’S BUILD.
               <br />
-              <em>One conversation away.</em>
+              <em>LET’S TALK.</em>
             </h2>
             <p>
               Looking for a Java / backend developer or an early-career SDE?

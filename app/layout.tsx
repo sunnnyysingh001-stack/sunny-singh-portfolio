@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./cinematic.css";
 export const metadata: Metadata = {
   icons: { icon: "/icon.svg" },
   metadataBase: new URL("https://sunny-singh-sde-portfolio.vercel.app"),

@@ -1,13 +1,13 @@
 # Sunny Singh — Software Developer Portfolio
 
 ## Stack
-Next.js 16.3.4, React 19.2.6, TypeScript, custom responsive CSS and Canvas animation. Static export for fast CDN delivery.
+Next.js 16.3.4, React 19.2.6, TypeScript, custom responsive CSS and CSS 3D animation. Static export for fast CDN delivery.
 
 ## Edit and run
 1. Install Node.js 22 or 24.
 2. Run `npm install`.
 3. Run `npm run dev`.
-4. Edit content in `app/page.tsx`, appearance in `app/globals.css`, metadata in `app/layout.tsx`.
+4. Edit content in `app/page.tsx`, base layout in `app/globals.css`, cinematic art direction in `app/cinematic.css`, metadata in `app/layout.tsx`.
 5. Run `npm run build`; the publishable site is `out/`.
 
 ## Deployment
@@ -28,10 +28,12 @@ Project visuals are illustrative, not screenshots of running applications. The R
 Email links open the visitor's mail application; copy email copies the address. No server-side contact form, analytics, or visitor database is configured.
 
 ## Verification
-Production build and TypeScript checking passed. Automated browser interaction and responsive visual testing were unavailable in this environment.
+Production build and TypeScript checking passed. Browser verification covers navigation, project filters, case study dialogs, theme switching, motion pause and quiz interaction.
 
 ## Future updates from ChatGPT
 Use this source archive and the Vercel project ID above. Edit, rebuild and publish to the same project to preserve the public link. Keep project URLs, résumé, credentials and employment dates current.
 
 ## Appearance
-The portfolio includes an AR/VR-inspired glass interface, pointer-responsive depth, motion controls, reduced-motion support, and a floating light/dark theme switch that remembers the visitor’s preference.
+The portfolio adapts the owner’s October 23 video reference into a cinematic black/ivory design: a spotlight, sculptural portrait rings, kinetic typography, staggered project displays and oversized contact typography. It uses CSS 3D transforms rather than a heavy WebGL runtime. Motion can be paused and respects reduced-motion preferences. The floating light/dark switch remembers the visitor’s preference.
+
+Quiz demo: `/quiz/` — a browser adaptation of the Android project, with Java/Web/CS categories, difficulty, timed rounds, scoring and answer review. Edit questions in `public/quiz/engine.mjs`.
