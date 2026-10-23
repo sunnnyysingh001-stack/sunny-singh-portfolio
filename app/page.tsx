@@ -78,6 +78,45 @@ const skills = [
     text: "Git · GitHub · IntelliJ IDEA · Postman · Android Studio · MySQL Workbench",
   },
 ];
+const focusCards = [
+  { title: "JAVA DEVELOPER", detail: "OOP · Collections · Clean code", icon: "{ }", number: "01" },
+  { title: "BACKEND ENGINEER", detail: "Spring Boot · REST APIs · Databases", icon: "↗", number: "02" },
+  { title: "PROBLEM SOLVER", detail: "Algorithms · Data structures · Curiosity", icon: "✳", number: "03" },
+];
+function FocusCarousel({ motion }: { motion: boolean }) {
+  const [index, setIndex] = useState(0);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const start = useRef<number | null>(null);
+  const step = (direction: number) => setIndex(i => (i + direction + focusCards.length) % focusCards.length);
+  useEffect(() => {
+    if (!motion || hovered || focused || paused) return;
+    const timer = window.setInterval(() => setIndex(i => (i + 1) % focusCards.length), 4200);
+    return () => window.clearInterval(timer);
+  }, [motion, hovered, focused, paused]);
+  return <section className="focus-carousel" aria-label="My engineering focus" aria-roledescription="carousel"
+    onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+    onFocusCapture={() => setFocused(true)} onBlurCapture={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setFocused(false); }}>
+    <div className="focus-top wrap"><span>THREE WAYS I BUILD</span><span>SWIPE TO EXPLORE ↔</span></div>
+    <div className="focus-stage" onPointerDown={e => { if (e.pointerType === "mouse" && e.button !== 0) return; start.current = e.clientX; e.currentTarget.setPointerCapture(e.pointerId); }}
+      onPointerUp={e => { const x=start.current; start.current=null; if(x!==null && Math.abs(e.clientX-x)>40) { setPaused(true); step(e.clientX<x ? 1 : -1); } }}
+      onPointerCancel={()=>{start.current=null;}}>
+      {focusCards.map((card, i) => {
+        const slot=(i-index+3)%3; const position=slot===0?"current":slot===1?"next":"previous";
+        return <article key={card.number} className={`focus-card ${position}`} aria-roledescription="slide" aria-label={`${i+1} of 3: ${card.title}`} aria-hidden={i!==index}>
+          <div className="focus-card-top"><span>{card.number} / EXPERTISE</span><b aria-hidden="true">{card.icon}</b></div>
+          <h2>{card.title}</h2><p>{card.detail}</p>
+        </article>;
+      })}
+    </div>
+    <div className="focus-controls wrap"><button onClick={()=>{setPaused(true);step(-1);}} aria-label="Previous focus card">←</button>
+      <div className="focus-dots">{focusCards.map((card,i)=><button key={card.number} onClick={()=>{setPaused(true);setIndex(i);}} aria-label={`Show ${card.title.toLowerCase()}`} aria-pressed={index===i}><span /></button>)}</div>
+      <button onClick={()=>{setPaused(true);step(1);}} aria-label="Next focus card">→</button>
+      <button className="focus-play" onClick={()=>setPaused(!paused)} disabled={!motion} aria-label={paused ? "Play card rotation" : "Pause card rotation"}>{!motion ? "Motion off" : paused ? "▶ Play" : "Ⅱ Pause"}</button>
+    </div>
+  </section>;
+}
 export default function Home() {
   const [menu, setMenu] = useState(false);
   const [filter, setFilter] = useState("All");
@@ -213,7 +252,7 @@ export default function Home() {
           <div className="hero-bottom wrap"><p>I build the systems behind the experience.<br /><span>Java, Spring Boot, REST APIs & a curiosity for how things work.</span></p><div className="actions"><a className="button primary" href="#work">Explore my work ↗</a><a className="button secondary" href="/Sunny-Singh-Resume.pdf" target="_blank" rel="noreferrer">Résumé ↓</a></div></div>
           <div className="hero-foot wrap"><a href="#work">SCROLL TO EXPLORE ↓</a><button onClick={()=>setMotion(!motion)} aria-pressed={motion}>{motion ? "Ⅱ Pause motion" : "▶ Enable motion"}</button></div>
         </section>
-        <div className="kinetic-strip" aria-hidden="true"><div>{[0,1].map(n=><span key={n}>JAVA DEVELOPER <i>✳</i> BACKEND ENGINEER <i>✳</i> PROBLEM SOLVER <i>✳</i> </span>)}</div></div>
+        <FocusCarousel motion={motion} />
         <div className="proof wrap">
           <div>
             <strong>
