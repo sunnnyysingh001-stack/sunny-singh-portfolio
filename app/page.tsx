@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 const EMAIL = "sunnnyy.singh001@gmail.com";
-const GH = "https://github.com/sunnysingh0829";
+const GH = "https://github.com/sunnnyysingh001-stack";
 const projects = [
   {
     id: "rescue",
@@ -53,7 +53,7 @@ const projects = [
       "Answer evaluation",
       "Score summary",
     ],
-    note: "Personal academic project. Source code and a demo can be discussed on request.",
+    note: "Personal academic Android project. Try the browser adaptation: categories, timed questions, scoring and answer explanations. The web demo is not an Android emulator.",
   },
 ];
 const skills = [
@@ -497,6 +497,7 @@ export default function Home() {
                         <span key={t}>{t}</span>
                       ))}
                     </div>
+                    {p.id === "quiz" && (<a className="text-link" href="/quiz/">Play the quiz demo ↗</a>)}
                     {p.id === "rescue" && (
                       <a
                         className="text-link"
